@@ -130,7 +130,8 @@ def xywhr2xyxyr(
     """Convert a rotated boxes in XYWHR format to XYXYR format.
 
     Args:
-        boxes_xywhr (torch.Tensor or np.ndarray): Rotated boxes in XYWHR format.
+        boxes_xywhr (torch.Tensor or np.ndarray): Rotated boxes
+            in XYWHR format.
 
     Returns:
         (torch.Tensor or np.ndarray): Converted boxes in XYXYR format.
