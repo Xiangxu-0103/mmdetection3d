@@ -42,7 +42,7 @@ class CameraInstance3DBoxes(BaseInstance3DBoxes):
 
     def __init__(
         self,
-        tensor: Union[torch.Tensor, np.ndarray, Sequence[float]],
+        tensor: Union[torch.Tensor, np.ndarray, Sequence],
         box_dim: int = 7,
         with_yaw: bool = True,
         origin: Tuple[float] = (0.5, 1.0, 0.5)
