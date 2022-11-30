@@ -20,8 +20,7 @@ class BaseInstance3DBoxes(object):
         the box is (0.5, 0.5, 0).
 
     Args:
-        tensor (torch.Tensor or np.ndarray or Sequence[float]):
-            a N x box_dim matrix.
+        tensor (torch.Tensor or np.ndarray or Sequence): a N x box_dim matrix.
         box_dim (int): Number of the dimension of a box.
             Each row is (x, y, z, x_size, y_size, z_size, yaw).
             Defaults to 7.
@@ -42,7 +41,7 @@ class BaseInstance3DBoxes(object):
 
     def __init__(
         self,
-        tensor: Union[torch.Tensor, np.ndarray, Sequence[float]],
+        tensor: Union[torch.Tensor, np.ndarray, Sequence],
         box_dim: int = 7,
         with_yaw: bool = True,
         origin: Tuple[float] = (0.5, 0.5, 0)
