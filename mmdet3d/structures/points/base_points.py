@@ -14,7 +14,8 @@ class BasePoints(object):
     """Base class for Points.
 
     Args:
-        tensor (torch.Tensor | np.ndarray | Sequence): A N x points_dim matrix.
+        tensor (torch.Tensor or np.ndarray or Sequence):
+            A N x points_dim matrix.
         points_dim (int): Number of the dimension of a point.
             Each row is (x, y, z). Defaults to 3.
         attribute_dims (dict, optional): Dictionary to indicate the
