@@ -65,8 +65,7 @@ class Box3DMode(IntEnum):
 
     @staticmethod
     def convert(
-        box: Union[Sequence[float], np.ndarray, torch.Tensor,
-                   BaseInstance3DBoxes],
+        box: Union[Sequence, np.ndarray, torch.Tensor, BaseInstance3DBoxes],
         src: 'Box3DMode',
         dst: 'Box3DMode',
         rt_mat: Optional[Union[np.ndarray, torch.Tensor]] = None,
@@ -76,7 +75,7 @@ class Box3DMode(IntEnum):
         """Convert boxes from `src` mode to `dst` mode.
 
         Args:
-            box (Tuple[float] or List[float] or np.ndarray or
+            box (tuple or list or np.ndarray or
                 torch.Tensor or :obj:`BaseInstance3DBoxes`):
                 Can be a k-tuple, k-list or an Nxk array/tensor, where k = 7.
             src (:obj:`Box3DMode`): The src Box mode.
@@ -93,7 +92,7 @@ class Box3DMode(IntEnum):
             correct_yaw (bool): If the yaw is rotated by rt_mat.
 
         Returns:
-            (Tuple[float] or List[float] or np.ndarray or torch.Tensor or
+            (tuple or list or np.ndarray or torch.Tensor or
             :obj:`BaseInstance3DBoxes`):
             The converted box of the same type.
         """
