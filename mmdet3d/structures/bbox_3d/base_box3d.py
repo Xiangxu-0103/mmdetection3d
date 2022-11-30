@@ -526,16 +526,15 @@ class BaseInstance3DBoxes(object):
         return iou3d
 
     def new_box(
-        self, data: Union[torch.Tensor, np.ndarray, Sequence[float]]
-    ) -> 'BaseInstance3DBoxes':
+        self, data: Union[torch.Tensor, np.ndarray,
+                          Sequence]) -> 'BaseInstance3DBoxes':
         """Create a new box object with data.
 
         The new box and its tensor has the similar properties
         as self and self.tensor, respectively.
 
         Args:
-            data (torch.Tensor or np.ndarray or Sequence[float]):
-                Data to be copied.
+            data (torch.Tensor or np.ndarray or Sequence): Data to be copied.
 
         Returns:
             :obj:`BaseInstance3DBoxes`: A new bbox object with ``data``,
