@@ -65,20 +65,20 @@ class Coord3DMode(IntEnum):
 
     @staticmethod
     def convert(
-        input: Union[Sequence[float], np.ndarray, torch.Tensor,
-                     BaseInstance3DBoxes, BasePoints],
+        input: Union[Sequence, np.ndarray, torch.Tensor, BaseInstance3DBoxes,
+                     BasePoints],
         src: Union[Box3DMode, 'Coord3DMode'],
         dst: Union[Box3DMode, 'Coord3DMode'],
         rt_mat: Optional[Union[np.ndarray, torch.Tensor]] = None,
         with_yaw: bool = True,
         correct_yaw: bool = False,
         is_point: bool = True
-    ) -> Union[Sequence[float], np.ndarray, torch.Tensor, BaseInstance3DBoxes,
+    ) -> Union[Sequence, np.ndarray, torch.Tensor, BaseInstance3DBoxes,
                BasePoints]:
         """Convert boxes or points from `src` mode to `dst` mode.
 
         Args:
-            input (Tuple[float] or List[float] or np.ndarray or torch.Tensor or
+            input (tuple or list or np.ndarray or torch.Tensor or
                 :obj:`BaseInstance3DBoxes` or :obj:`BasePoints`):
                 Can be a k-tuple, k-list or an Nxk array/tensor, where k = 7.
             src (:obj:`Box3DMode` or :obj:`Coord3DMode`): The source mode.
@@ -100,7 +100,7 @@ class Coord3DMode(IntEnum):
                 Defaults to True.
 
         Returns:
-            (Tuple[float] or List[float] or np.ndarray or torch.Tensor or
+            (tuple or list or np.ndarray or torch.Tensor or
             :obj:`BaseInstance3DBoxes` or :obj:`BasePoints`):
             The converted data of the same type.
         """
@@ -131,18 +131,17 @@ class Coord3DMode(IntEnum):
 
     @staticmethod
     def convert_box(
-        box: Union[Sequence[float], np.ndarray, torch.Tensor,
-                   BaseInstance3DBoxes],
+        box: Union[Sequence, np.ndarray, torch.Tensor, BaseInstance3DBoxes],
         src: Box3DMode,
         dst: Box3DMode,
         rt_mat: Optional[Union[np.ndarray, torch.Tensor]] = None,
         with_yaw: bool = True,
         correct_yaw: bool = False
-    ) -> Union[Sequence[float], np.ndarray, torch.Tensor, BaseInstance3DBoxes]:
+    ) -> Union[Sequence, np.ndarray, torch.Tensor, BaseInstance3DBoxes]:
         """Convert boxes from `src` mode to `dst` mode.
 
         Args:
-            box (Tuple[float] or List[float] or np.ndarray or
+            box (tuple or list or np.ndarray or
                 torch.Tensor or :obj:`BaseInstance3DBoxes`):
                 Can be a k-tuple, k-list or an Nxk array/tensor, where k = 7.
             src (:obj:`Box3DMode`): The src Box mode.
@@ -160,7 +159,7 @@ class Coord3DMode(IntEnum):
                 Defaults to False.
 
         Returns:
-            (Tuple[float] or List[float] or np.ndarray or torch.Tensor or
+            (tuple or list or np.ndarray or torch.Tensor or
             :obj:`BaseInstance3DBoxes`):
             The converted box of the same type.
         """
@@ -174,15 +173,15 @@ class Coord3DMode(IntEnum):
 
     @staticmethod
     def convert_point(
-        point: Union[Sequence[float], np.ndarray, torch.Tensor, BasePoints],
+        point: Union[Sequence, np.ndarray, torch.Tensor, BasePoints],
         src: 'Coord3DMode',
         dst: 'Coord3DMode',
         rt_mat: Optional[Union[np.ndarray, torch.Tensor]] = None
-    ) -> Union[Sequence[float], np.ndarray, torch.Tensor, BasePoints]:
+    ) -> Union[Sequence, np.ndarray, torch.Tensor, BasePoints]:
         """Convert points from `src` mode to `dst` mode.
 
         Args:
-            point (Tuple[float] or List[float] or np.ndarray or
+            point (tuple or list or np.ndarray or
                 torch.Tensor or :obj:`BasePoints`):
                 Can be a k-tuple, k-list or an Nxk array/tensor.
             src (:obj:`CoordMode`): The src Point mode.
@@ -195,7 +194,7 @@ class Coord3DMode(IntEnum):
                 to LiDAR. This requires a transformation matrix.
 
         Returns:
-            (Tuple[float] or List[float] or np.ndarray or torch.Tensor or
+            (tuple or list or np.ndarray or torch.Tensor or
             :obj:`BasePoints`): The converted point of the same type.
         """
         if src == dst:
