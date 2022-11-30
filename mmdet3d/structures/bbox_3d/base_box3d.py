@@ -206,7 +206,8 @@ class BaseInstance3DBoxes(object):
         Args:
             angle (float or torch.Tensor or np.ndarray):
                 Rotation angle or rotation matrix.
-            points (torch.Tensor or np.ndarray or :obj:`BasePoints`, optional):
+            points (torch.Tensor or np.ndarray or
+                :obj:`BasePoints`, optional):
                 Points to rotate. Defaults to None.
         """
         pass
