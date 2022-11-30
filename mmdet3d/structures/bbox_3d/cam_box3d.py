@@ -240,7 +240,7 @@ class CameraInstance3DBoxes(BaseInstance3DBoxes):
                 Points to flip. Defaults to None.
 
         Returns:
-            Tensor or np.ndarray or :obj:`BasePoints` or None:
+            torch.Tensor or np.ndarray or :obj:`BasePoints` or None:
             Flipped points.
         """
         assert bev_direction in ('horizontal', 'vertical')
