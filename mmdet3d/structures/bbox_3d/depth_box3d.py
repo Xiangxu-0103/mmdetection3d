@@ -200,7 +200,7 @@ class DepthInstance3DBoxes(BaseInstance3DBoxes):
 
         Args:
             dst (:obj:`Box3DMode`): The target Box mode.
-            rt_mat (torch.Tensor or np.ndarray, optional): The rotation and
+            rt_mat (np.ndarray or torch.Tensor, optional): The rotation and
                 translation matrix between different coordinates.
                 Defaults to None.
                 The conversion from ``src`` coordinates to ``dst`` coordinates
