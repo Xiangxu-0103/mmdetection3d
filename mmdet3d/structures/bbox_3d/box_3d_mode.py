@@ -71,7 +71,7 @@ class Box3DMode(IntEnum):
         rt_mat: Optional[Union[np.ndarray, torch.Tensor]] = None,
         with_yaw: bool = True,
         correct_yaw: bool = False
-    ) -> Union[Sequence[float], np.ndarray, torch.Tensor, BaseInstance3DBoxes]:
+    ) -> Union[Sequence, np.ndarray, torch.Tensor, BaseInstance3DBoxes]:
         """Convert boxes from `src` mode to `dst` mode.
 
         Args:
