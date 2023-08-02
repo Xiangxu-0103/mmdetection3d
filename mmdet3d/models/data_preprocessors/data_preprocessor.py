@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import torch
-from mmdet.models import DetDataPreprocessor
+from mmdet.models import DetDataPreprocessor, MultiBranchDataPreprocessor
 from mmdet.models.utils.misc import samplelist_boxtype2tensor
 from mmengine.model import stack_batch
 from mmengine.utils import is_seq_of
@@ -540,3 +540,66 @@ class Det3DDataPreprocessor(DetDataPreprocessor):
         if return_inverse:
             outputs += [inverse_indices]
         return outputs
+
+
+@MODELS.register_module()
+class MultiBranch3DDataPreprocessor(MultiBranchDataPreprocessor):
+    """DataPreprocessor wrapper for multi-branch data."""
+
+    def forward(self, data: dict, training: bool = False) -> dict:
+        """Perform normalization, padding and bgr2rgb conversion based on
+        ``BaseDataPreprocessor``.
+
+        Args:
+            data (dict or List[dict]): Data from dataloader. The dict contains
+                the whole batch data, when it is a list[dict], the list
+                indicates test time augmentation.
+            training (bool): Whether to enable training time augmentation.
+                Defaults to False.
+
+        Returns:
+            dict or List[dict]: Data in the same format as the model input.
+        """
+        if training is False:
+            return self.data_preprocessor(data, training)
+
+        # Filter out branches with a value of None
+        for key in data.keys():
+            for branch in data[key].keys():
+                if isinstance(data[key][branch], dict):
+                    for field in data[key][branch].keys():
+                        data[key][branch][field] = list(
+                            filter(lambda x: x is not None,
+                                   data[key][branch][field]))
+                else:
+                    data[key][branch] = list(
+                        filter(lambda x: x is not None, data[key][branch]))
+
+        # Group data by branch
+        multi_branch_data = {}
+        for key in data.keys():
+            for branch in data[key].keys():
+                if multi_branch_data.get(branch, None) is None:
+                    multi_branch_data[branch] = {key: data[key][branch]}
+                elif multi_branch_data[branch].get(key, None) is None:
+                    multi_branch_data[branch][key] = data[key][branch]
+                else:
+                    multi_branch_data[branch][key].append(data[key][branch])
+
+        # Preprocess data from different branches
+        for branch, _data in multi_branch_data.items():
+            multi_branch_data[branch] = self.data_preprocessor(_data, training)
+
+        # Format data by inputs and data_samples
+        format_data = {}
+        for branch in multi_branch_data.keys():
+            for key in multi_branch_data[branch].keys():
+                if format_data.get(key, None) is None:
+                    format_data[key] = {branch: multi_branch_data[branch][key]}
+                elif format_data[key].get(branch, None) is None:
+                    format_data[key][branch] = multi_branch_data[branch][key]
+                else:
+                    format_data[key][branch].append(
+                        multi_branch_data[branch][key])
+
+        return format_data
