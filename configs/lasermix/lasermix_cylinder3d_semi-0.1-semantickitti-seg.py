@@ -59,7 +59,7 @@ model = dict(
                 max_num_points=-1,
                 max_voxels=-1))),
     semi_train_cfg=dict(freeze_teacher=True),
-    semi_test_cfg=dict(extract_feat_on='student'))
+    semi_test_cfg=dict(extract_feat_on='student', predict_on='student'))
 
 train_cfg = dict(
     _delete_=True,

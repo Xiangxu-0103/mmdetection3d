@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Dict
+from typing import Dict, List, OrderedDict
 
 from torch import Tensor, nn
 
@@ -61,7 +61,12 @@ class SemiBase3DSegmentor(Base3DSegmentor):
                 batch_data_samples: SampleList) -> SampleList:
         """Predict results from a batch of inputs and data samples with post-
         processing."""
-        pass
+        if self.semi_test_cfg.get('predict_on', 'teacher') == 'teacher':
+            return self.teacher(
+                batch_inputs, batch_data_samples, mode='predict')
+        else:
+            return self.student(
+                batch_inputs, batch_data_samples, mode='predict')
 
     def _forward(self,
                  batch_inputs: dict,
@@ -71,7 +76,12 @@ class SemiBase3DSegmentor(Base3DSegmentor):
         Usually includes backbone, neck and head forward without any post-
         processing.
         """
-        pass
+        if self.semi_test_cfg.get('predict_on', 'teacher') == 'teacher':
+            return self.teacher(
+                batch_inputs, batch_data_samples, mode='tensor')
+        else:
+            return self.student(
+                batch_inputs, batch_data_samples, mode='tensor')
 
     def extract_feat(self, batch_inputs: Tensor) -> dict:
         if self.semi_test_cfg.get('extract_feat_on', 'teacher') == 'teacher':
@@ -84,3 +94,22 @@ class SemiBase3DSegmentor(Base3DSegmentor):
         """Placeholder for encode images with backbone and decode into a
         semantic segmentation map of the same size as input."""
         pass
+
+    def _load_from_state_dict(self, state_dict: OrderedDict, prefix: str,
+                              local_metadata: dict, strict: bool,
+                              missing_keys: List[str],
+                              unexpected_keys: List[str],
+                              error_msgs: List[str]) -> None:
+        if not any([
+                'student' in key or 'teacher' in key
+                for key in state_dict.keys()
+        ]):
+            keys = list(state_dict.keys())
+            state_dict.update({'teacher.' + k: state_dict[k] for k in keys})
+            state_dict.update({'student.' + k: state_dict[k] for k in keys})
+            for k in keys:
+                state_dict.pop(k)
+        return super()._load_from_state_dict(state_dict, prefix,
+                                             local_metadata, strict,
+                                             missing_keys, unexpected_keys,
+                                             error_msgs)
