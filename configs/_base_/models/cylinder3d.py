@@ -9,16 +9,13 @@ model = dict(
             grid_shape=grid_shape,
             point_cloud_range=[0, -3.14159265359, -4, 50, 3.14159265359, 2],
             max_num_points=-1,
-            max_voxels=-1,
-        ),
-    ),
+            max_voxels=-1)),
     voxel_encoder=dict(
         type='SegVFE',
         feat_channels=[64, 128, 256, 256],
         in_channels=6,
         with_voxel_center=True,
-        feat_compression=16,
-        return_point_feats=False),
+        feat_compression=16),
     backbone=dict(
         type='Asymm3DSpconv',
         grid_size=grid_shape,
