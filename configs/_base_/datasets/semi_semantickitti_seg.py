@@ -112,12 +112,6 @@ unsup_pipeline = [
         use_dim=4,
         backend_args=backend_args),
     dict(
-        type='LoadEmptyAnnotations3D',
-        with_bbox_3d=False,
-        with_label_3d=False,
-        with_seg_3d=True),
-    dict(type='PointSegClassMapping'),
-    dict(
         type='RandomFlip3D',
         sync_2d=False,
         flip_ratio_bev_horizontal=0.5,

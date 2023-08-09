@@ -20,8 +20,7 @@ segmentor = dict(
         feat_channels=[64, 128, 256, 256],
         in_channels=6,
         with_voxel_center=True,
-        feat_compression=16,
-        return_point_feats=False),
+        feat_compression=16),
     backbone=dict(
         type='Asymm3DSpconv',
         grid_size=grid_shape,
@@ -58,7 +57,7 @@ model = dict(
                 ],
                 max_num_points=-1,
                 max_voxels=-1))),
-    semi_train_cfg=dict(freeze_teacher=True),
+    semi_train_cfg=dict(freeze_teacher=True, pseudo_thr=0.9, ignore_label=19),
     semi_test_cfg=dict(extract_feat_on='student', predict_on='student'))
 
 train_cfg = dict(
@@ -71,4 +70,4 @@ default_hooks = dict(
     checkpoint=dict(by_epoch=False, interval=10000, max_keep_ckpts=2))
 log_processor = dict(by_epoch=False)
 
-# TODO: Add custom hooks for EMA Update
+custom_hooks = [dict(type='mmdet.MeanTeacherHook', momentum=0.01)]

@@ -1,6 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import Dict, List, OrderedDict
 
+import torch
+import torch.nn.functional as F
+from mmdet.models.utils import rename_loss_dict, reweight_loss_dict
 from torch import Tensor, nn
 
 from mmdet3d.registry import MODELS
@@ -55,7 +58,76 @@ class SemiBase3DSegmentor(Base3DSegmentor):
     def loss(self, multi_batch_inputs: Dict[str, dict],
              multi_batch_data_samples: Dict[str, SampleList]) -> dict:
         """Calculate losses from a batch of inputs and data samples."""
-        pass
+        losses = dict()
+        losses.update(**self.loss_by_gt_instances(
+            multi_batch_inputs['sup'], multi_batch_data_samples['sup']))
+
+        pseudo_data_samples = self.get_pseudo_instances(
+            multi_batch_inputs['unsup'], multi_batch_data_samples['unsup'])
+        losses.update(**self.loss_by_pseudo_instances(
+            multi_batch_inputs['unsup'], pseudo_data_samples))
+        return losses
+
+    def loss_by_gt_instances(self, batch_inputs: dict,
+                             batch_data_samples: SampleList) -> dict:
+        """Calculate losses from a batch of inputs and ground-truth data
+        samples.
+
+        Args:
+            batch_inputs (dict): Input sample dict which includes 'points' and
+                'imgs' keys.
+
+                - points (List[Tensor]): Point cloud of each sample.
+                - imgs (Tensor, optional): Image tensor has shape (B, C, H, W).
+            batch_data_samples (List[:obj:`Det3DDataSample`]): The det3d data
+                samples. It usually includes information such as `metainfo` and
+                `gt_pts_seg`.
+
+        Returns:
+            dict: A dictionary of loss components
+        """
+        losses = self.student.loss(batch_inputs, batch_data_samples)
+        unsup_weight = self.semi_train_cfg.get('unsup_weight', 1.)
+        return rename_loss_dict('unsup_',
+                                reweight_loss_dict(losses, unsup_weight))
+
+    def loss_by_pseudo_instances(self, batch_inputs: dict,
+                                 batch_data_samples: SampleList) -> dict:
+        """Calculate losses from a batch of inputs and pseudo data samples.
+
+        Args:
+            batch_inputs (dict): Input sample dict which includes 'points' and
+                'imgs' keys.
+
+                - points (List[Tensor]): Point cloud of each sample.
+                - imgs (Tensor, optional): Image tensor has shape (B, C, H, W).
+            batch_data_samples (List[:obj:`Det3DDataSample`]): The det3d data
+                samples. It usually includes information such as `metainfo` and
+                `gt_pts_seg`.
+
+        Returns:
+            dict: A dictionary of loss components
+        """
+        losses = self.student.loss(batch_inputs, batch_data_samples)
+        sup_weight = self.semi_train_cfg.get('sup_weight', 1.)
+        return rename_loss_dict('sup_', reweight_loss_dict(losses, sup_weight))
+
+    @torch.no_grad()
+    def get_pseudo_instances(self, batch_inputs: Tensor,
+                             batch_data_samples: SampleList):
+        """Get pseudo instances from teacher model."""
+        self.teacher.eval()
+        results_list = self.teacher.predict(batch_inputs, batch_data_samples)
+        for data_samples, results in zip(batch_data_samples, results_list):
+            data_samples.gt_pts_seg = results.pred_pts_seg
+            seg_logits = F.softmax(
+                results.pts_seg_logits.pts_seg_logits, dim=0)
+            seg_scores = seg_logits.max(dim=0)[0]
+            pseudo_thr = self.semi_train_cfg.get('pseudo_thr', 0.)
+            ignore_mask = (seg_scores < pseudo_thr)
+            data_samples.gt_pts_seg.pts_semantic_mask[
+                ignore_mask] = self.semi_train_cfg.ignore_label
+        return batch_data_samples
 
     def predict(self, batch_inputs: dict,
                 batch_data_samples: SampleList) -> SampleList:
