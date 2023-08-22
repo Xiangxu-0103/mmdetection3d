@@ -87,9 +87,8 @@ class SemiBase3DSegmentor(Base3DSegmentor):
             dict: A dictionary of loss components
         """
         losses = self.student.loss(batch_inputs, batch_data_samples)
-        unsup_weight = self.semi_train_cfg.get('unsup_weight', 1.)
-        return rename_loss_dict('unsup_',
-                                reweight_loss_dict(losses, unsup_weight))
+        sup_weight = self.semi_train_cfg.get('sup_weight', 1.)
+        return rename_loss_dict('sup_', reweight_loss_dict(losses, sup_weight))
 
     def loss_by_pseudo_instances(self, batch_inputs: dict,
                                  batch_data_samples: SampleList) -> dict:
@@ -109,8 +108,9 @@ class SemiBase3DSegmentor(Base3DSegmentor):
             dict: A dictionary of loss components
         """
         losses = self.student.loss(batch_inputs, batch_data_samples)
-        sup_weight = self.semi_train_cfg.get('sup_weight', 1.)
-        return rename_loss_dict('sup_', reweight_loss_dict(losses, sup_weight))
+        unsup_weight = self.semi_train_cfg.get('unsup_weight', 1.)
+        return rename_loss_dict('unsup_',
+                                reweight_loss_dict(losses, unsup_weight))
 
     @torch.no_grad()
     def get_pseudo_instances(self, batch_inputs: Tensor,
