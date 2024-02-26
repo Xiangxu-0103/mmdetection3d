@@ -533,7 +533,8 @@ class SegVFE(nn.Module):
                      type='BN1d', eps=1e-5, momentum=0.1),
                  mode: str = 'max',
                  with_pre_norm: bool = True,
-                 feat_compression: Optional[int] = None) -> None:
+                 feat_compression: Optional[int] = None,
+                 height_pooling: bool = False) -> None:
         super(SegVFE, self).__init__()
         assert mode in ['avg', 'max']
         assert len(feat_channels) > 0
@@ -542,6 +543,7 @@ class SegVFE(nn.Module):
         if with_voxel_center:
             in_channels += 3
         self.in_channels = in_channels
+        self.height_pooling = height_pooling
         self._with_voxel_center = with_voxel_center
 
         self.point_cloud_range = point_cloud_range
@@ -630,8 +632,13 @@ class SegVFE(nn.Module):
         for vfe in self.vfe_layers:
             features = vfe(features)
             point_feats.append(features)
-        voxel_feats, voxel_coors, point2voxel_maps = self.vfe_scatter(
-            features, coors)
+
+        if self.height_pooling:
+            voxel_feats, voxel_coors, point2voxel_maps = self.vfe_scatter(
+                features, coors[:, :-1])
+        else:
+            voxel_feats, voxel_coors, point2voxel_maps = self.vfe_scatter(
+                features, coors)
 
         if self.compression_layers is not None:
             voxel_feats = self.compression_layers(voxel_feats)
